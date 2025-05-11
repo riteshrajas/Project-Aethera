@@ -1,8 +1,8 @@
 # Project Aethera
 
-AI Suite powered by Google Gemini.
+**Project Aethera is the successor to Pyintel, an AI created by Ritesh.**
 
-This project aims to create a powerful and useful AI system, drawing inspiration from capabilities like Iron Man's J.A.R.V.I.S. and general AI wrapper functionalities.
+This project aims to be the next biggest advancement in AI, creating a powerful and useful AI system with multi-point control. It will be capable of doing everything from building AI-powered applications to rating entire databases using only voice commands. Project Aethera is designed as a personal assistant that learns on command, drawing inspiration from capabilities like Iron Man's J.A.R.V.I.S. and general AI wrapper functionalities.
 
 ## Features
 See `Aethera_Features.md` for a detailed list of planned features.
