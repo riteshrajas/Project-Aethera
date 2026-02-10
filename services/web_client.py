@@ -76,7 +76,7 @@ def create_app():
                 except Exception:
                     error = "Unable to analyze text. Please try again."
                 else:
-                    results = sorted(stats.items(), key=lambda word_count: word_count[1], reverse=True)[:10]
+                    results = sorted(stats.items(), key=lambda pair: pair[1], reverse=True)[:10]
             else:
                 error = "Please enter text to analyze."
 
