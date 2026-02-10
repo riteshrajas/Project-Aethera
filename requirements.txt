@@ -1,2 +1,2 @@
 # Python dependencies for Project Aethera
-# Add libraries like: google-generativeai, flask, etc.
+Flask==3.0.2
