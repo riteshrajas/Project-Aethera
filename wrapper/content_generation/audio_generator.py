@@ -1,1 +1,1 @@
-# Code for audio generation
+"""Code for audio generation."""
