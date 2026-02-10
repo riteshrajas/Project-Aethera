@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from services.web_client import create_app
 
@@ -24,6 +25,12 @@ class TestWebClient(unittest.TestCase):
         response = self.client.post("/", data={"text": "   "})
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Please enter text to analyze.", response.data)
+
+    def test_index_post_failure(self):
+        with patch("services.web_client.analyze_text_frequency", side_effect=RuntimeError("boom")):
+            response = self.client.post("/", data={"text": "Boom"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Unable to analyze text. Please try again.", response.data)
 
 
 if __name__ == "__main__":

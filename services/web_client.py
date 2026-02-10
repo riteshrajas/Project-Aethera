@@ -71,8 +71,12 @@ def create_app():
         if request.method == "POST":
             text = request.form.get("text", "")
             if text.strip():
-                stats = analyze_text_frequency(text)
-                results = sorted(stats.items(), key=lambda item: item[1], reverse=True)[:10]
+                try:
+                    stats = analyze_text_frequency(text)
+                except Exception:
+                    error = "Unable to analyze text. Please try again."
+                else:
+                    results = sorted(stats.items(), key=lambda word_count: word_count[1], reverse=True)[:10]
             else:
                 error = "Please enter text to analyze."
 
