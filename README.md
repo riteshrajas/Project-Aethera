@@ -23,6 +23,8 @@ Run the lightweight web client to analyze text from a browser:
 1.  Start the server: `python -m services.web_client`
 2.  Open `http://localhost:5000` in your browser.
 
+Note: This runs Flask's development server for local use. Use a production WSGI server (e.g., gunicorn or waitress) for deployments.
+
 ## Project Structure
 (A brief overview of the main directories)
 - `core/`: Core J.A.R.V.I.S.-like functionalities.
