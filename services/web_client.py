@@ -79,6 +79,9 @@ def create_app():
                 except ValueError as exc:
                     app.logger.warning("Text analysis failed: %s", exc)
                     error = "Unable to analyze text: invalid content."
+                except Exception as exc:
+                    app.logger.exception("Unexpected text analysis failure: %s", exc)
+                    error = "Unable to analyze text due to an unexpected error."
                 else:
                     results = sorted(
                         stats.items(),
