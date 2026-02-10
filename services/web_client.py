@@ -73,10 +73,14 @@ def create_app():
             if text.strip():
                 try:
                     stats = analyze_text_frequency(text)
-                except Exception:
+                except (TypeError, ValueError):
                     error = "Unable to analyze text. Please try again."
                 else:
-                    results = sorted(stats.items(), key=lambda pair: pair[1], reverse=True)[:10]
+                    results = sorted(
+                        stats.items(),
+                        key=lambda word_count_pair: word_count_pair[1],
+                        reverse=True,
+                    )[:10]
             else:
                 error = "Please enter text to analyze."
 

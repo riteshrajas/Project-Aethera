@@ -27,7 +27,7 @@ class TestWebClient(unittest.TestCase):
         self.assertIn(b"Please enter text to analyze.", response.data)
 
     def test_index_post_failure(self):
-        with patch("services.web_client.analyze_text_frequency", side_effect=RuntimeError("boom")):
+        with patch("services.web_client.analyze_text_frequency", side_effect=TypeError("boom")):
             response = self.client.post("/", data={"text": "Boom"})
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Unable to analyze text. Please try again.", response.data)
