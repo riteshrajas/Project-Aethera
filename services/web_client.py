@@ -40,7 +40,7 @@ TEMPLATE = """
     {% endif %}
     <form method="post">
       <label for="text">Text input</label>
-      <textarea id="text" name="text">{{ text }}</textarea>
+      <textarea id="text" name="text">{{ text | e }}</textarea>
       <div class="actions">
         <button type="submit">Analyze</button>
       </div>
@@ -73,9 +73,12 @@ def create_app():
             if text.strip():
                 try:
                     stats = analyze_text_frequency(text)
-                except (TypeError, ValueError) as exc:
+                except TypeError as exc:
                     app.logger.warning("Text analysis failed: %s", exc)
-                    error = "Unable to analyze text. Please try again."
+                    error = "Unable to analyze text: invalid input type."
+                except ValueError as exc:
+                    app.logger.warning("Text analysis failed: %s", exc)
+                    error = "Unable to analyze text: invalid content."
                 else:
                     results = sorted(
                         stats.items(),

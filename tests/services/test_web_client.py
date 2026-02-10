@@ -30,13 +30,13 @@ class TestWebClient(unittest.TestCase):
         with patch("services.web_client.analyze_text_frequency", side_effect=TypeError("boom")):
             response = self.client.post("/", data={"text": "Boom"})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Unable to analyze text. Please try again.", response.data)
+        self.assertIn(b"Unable to analyze text: invalid input type.", response.data)
 
     def test_index_post_value_error(self):
         with patch("services.web_client.analyze_text_frequency", side_effect=ValueError("boom")):
             response = self.client.post("/", data={"text": "Boom"})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Unable to analyze text. Please try again.", response.data)
+        self.assertIn(b"Unable to analyze text: invalid content.", response.data)
 
 
 if __name__ == "__main__":
