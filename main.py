@@ -8,7 +8,7 @@ def main():
 
     if len(sys.argv) > 1:
         filepath = sys.argv[1]
-        if os.path.exists(filepath):
+        if os.path.isfile(filepath):
             print(f"Analyzing {filepath}...")
             try:
                 # pass file object directly to be memory efficient
@@ -22,7 +22,7 @@ def main():
             except Exception as e:
                 print(f"Error reading file: {e}")
         else:
-            print(f"File not found: {filepath}")
+            print(f"File not found or is a directory: {filepath}")
 
     print("Project Aethera Active.")
 
