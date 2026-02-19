@@ -1,1 +1,1 @@
-# Code for video generation
+"""Code for video generation."""
