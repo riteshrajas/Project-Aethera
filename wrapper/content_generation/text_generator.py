@@ -1,1 +1,1 @@
-# Code for text generation
+"""Code for text generation."""

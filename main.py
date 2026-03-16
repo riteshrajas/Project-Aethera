@@ -1,43 +1,30 @@
+# Main application entry point for Project Aethera
 import sys
-import logging
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
-
-def validate_environment():
-    """Validate the running environment."""
-    # Check Python version (3.9+ recommended for google-generativeai)
-    if sys.version_info < (3, 9):
-        logger.warning("Project Aethera is recommended to run on Python 3.9 or higher.")
-
-    # Check if running as main
-    if __name__ != "__main__":
-        logger.error("main.py should be executed directly.")
-        return False
-    return True
+import os
+from core.information_management.data_analysis import analyze_text_frequency
 
 def main():
-    """Main application entry point logic."""
-    logger.info("Project Aethera Initializing...")
-    # TODO: Add main application logic
-    logger.info("Project Aethera Active.")
+    print("Project Aethera Initializing...")
+
+    if len(sys.argv) > 1:
+        filepath = sys.argv[1]
+        if os.path.exists(filepath):
+            print(f"Analyzing {filepath}...")
+            try:
+                # pass file object directly to be memory efficient
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    stats = analyze_text_frequency(f)
+
+                print(f"Analysis complete. Found {len(stats)} unique words.")
+                # print top 5 words
+                top_5 = sorted(stats.items(), key=lambda item: item[1], reverse=True)[:5]
+                print("Top 5 words:", top_5)
+            except Exception as e:
+                print(f"Error reading file: {e}")
+        else:
+            print(f"File not found: {filepath}")
+
+    print("Project Aethera Active.")
 
 if __name__ == "__main__":
-    if not validate_environment():
-        sys.exit(1)
-
-    try:
-        main()
-    except KeyboardInterrupt:
-        logger.info("Project Aethera stopped by user.")
-        sys.exit(0)
-    except Exception as e:
-        logger.critical(f"Project Aethera encountered a fatal error: {e}", exc_info=True)
-        sys.exit(1)
+    main()
