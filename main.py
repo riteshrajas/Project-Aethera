@@ -1,30 +1,46 @@
 # Main application entry point for Project Aethera
 import sys
-import os
-from core.information_management.data_analysis import analyze_text_frequency
+import subprocess
+
+def run_web_client():
+    print("Starting web client (python -m services.web_client)...")
+    subprocess.run([sys.executable, "-m", "services.web_client"]) 
+
+def run_tests():
+    print("Running tests (pytest)...")
+    subprocess.run([sys.executable, "-m", "pytest"]) 
 
 def main():
-    print("Project Aethera Initializing...")
+    print("Project Aethera — Productive Starter")
 
     if len(sys.argv) > 1:
-        filepath = sys.argv[1]
-        if os.path.exists(filepath):
-            print(f"Analyzing {filepath}...")
-            try:
-                # pass file object directly to be memory efficient
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    stats = analyze_text_frequency(f)
+        cmd = sys.argv[1].lower()
+        if cmd in ("web", "webclient", "web_client"):
+            run_web_client()
+            return
+        if cmd in ("test", "tests"):
+            run_tests()
+            return
+        print(f"Unknown command: {cmd}")
+        print("Available commands: web, tests")
+        return
 
-                print(f"Analysis complete. Found {len(stats)} unique words.")
-                # print top 5 words
-                top_5 = sorted(stats.items(), key=lambda item: item[1], reverse=True)[:5]
-                print("Top 5 words:", top_5)
-            except Exception as e:
-                print(f"Error reading file: {e}")
+    # Interactive prompt for quick productivity actions
+    while True:
+        print("\nChoose an action:")
+        print("1) Start web client")
+        print("2) Run tests")
+        print("3) Exit")
+        choice = input("Select 1-3: ").strip()
+        if choice == "1":
+            run_web_client()
+        elif choice == "2":
+            run_tests()
+        elif choice == "3":
+            print("Goodbye.")
+            break
         else:
-            print(f"File not found: {filepath}")
-
-    print("Project Aethera Active.")
+            print("Invalid choice.")
 
 if __name__ == "__main__":
     main()

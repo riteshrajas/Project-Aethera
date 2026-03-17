@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Aethera WhatsApp Integration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem auto;
+            max-width: 1200px;
+            padding: 0 1rem;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .status-bar {
+            background-color: #e3f2fd;
+            padding: 0.75rem;
+            border-left: 4px solid #2196f3;
+            margin-bottom: 2rem;
+            border-radius: 4px;
+        }
+        .status-bar.disconnected {
+            background-color: #ffebee;
+            border-left-color: #f44336;
+        }
+        .status-indicator {
+            font-weight: bold;
+            color: #1976d2;
+        }
+        .status-bar.disconnected .status-indicator {
+            color: #c62828;
+        }
+        .qr-container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .qr-code {
+            font-family: monospace;
+            font-size: 11px;
+            line-height: 11px;
+            white-space: pre;
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 1rem 0;
+        }
+        .qr-instructions {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .panel {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .panel h2 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.2rem;
+        }
+        .search-input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+        }
+        .chat-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .chat-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .chat-item:hover {
+            background-color: #f9f9f9;
+        }
+        .chat-item.selected {
+            background-color: #e3f2fd;
+            border-left: 3px solid #2196f3;
+        }
+        .chat-name {
+            font-weight: bold;
+            color: #333;
+        }
+        .chat-id {
+            font-size: 0.85rem;
+            color: #999;
+        }
+        .messages-area {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            background-color: #fafafa;
+            margin-bottom: 1rem;
+        }
+        .message {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            background-color: #fff;
+            border-left: 3px solid #ddd;
+        }
+        .message.sent {
+            border-left-color: #4caf50;
+            background-color: #f1f8e9;
+        }
+        .message.received {
+            border-left-color: #2196f3;
+            background-color: #e3f2fd;
+        }
+        .message-text {
+            word-wrap: break-word;
+        }
+        .message-sender {
+            font-size: 0.8rem;
+            color: #999;
+            margin-bottom: 0.25rem;
+        }
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .input-group input,
+        .input-group textarea {
+            flex-grow: 1;
+        }
+        .input-group input,
+        .input-group textarea {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+            resize: vertical;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #1976d2;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .error {
+            color: #c62828;
+            background-color: #ffebee;
+            padding: 0.75rem;
+            border-left: 4px solid #c62828;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .success {
+            color: #2e7d32;
+            background-color: #e8f5e9;
+            padding: 0.75rem;
+            border-left: 4px solid #2e7d32;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Aethera WhatsApp Integration</h1>
+    <div class="status-bar" id="status-bar">
+        <span class="status-indicator" id="status-text">● Checking connection...</span>
+    </div>
+
+    <div id="qr-container" style="display: none;">
+        <div class="qr-container">
+            <h2>Link Your WhatsApp Account</h2>
+            <p class="qr-instructions">Scan this QR code with WhatsApp on your phone → Linked Devices</p>
+            <pre class="qr-code" id="qr-code">Loading...</pre>
+        </div>
+    </div>
+
+    <div id="main-container" style="display: none;">
+        <div class="container">
+            <!-- Chats Panel -->
+            <div class="panel">
+                <h2>Chats</h2>
+                <input type="text" id="search-input" class="search-input" placeholder="Search chats..." onkeyup="filterChats()">
+                <div class="chat-list" id="chat-list">
+                    <div style="padding: 1rem; text-align: center; color: #999;">Loading chats...</div>
+                </div>
+            </div>
+
+            <!-- Messages Panel -->
+            <div class="panel">
+                <h2 id="active-chat-title">Select a chat</h2>
+                <div class="messages-area" id="messages-container">
+                    <div style="text-align: center; color: #999;">Messages will appear here</div>
+                </div>
+                <div id="message-input-group" style="display: none;">
+                    <div class="input-group">
+                        <textarea id="messageInput" placeholder="Type a message..." style="min-height: 50px; resize: vertical;" onkeypress="handleKeyPress(event)"></textarea>
+                        <button onclick="sendMsg()" style="align-self: flex-end; width: 60px; margin-left: 5px;">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allChats = [];
+        let currentChatId = null;
+        let currentChatName = null;
+
+        async function fetchStatus() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                
+                const statusBar = document.getElementById('status-bar');
+                const statusText = document.getElementById('status-text');
+
+                if (data.isConnected) {
+                    statusBar.classList.remove('disconnected');
+                    statusText.innerText = '● Connected';
+                    document.getElementById('qr-container').style.display = 'none';
+                    document.getElementById('main-container').style.display = 'block';
+                    
+                    if (allChats.length === 0) {
+                        loadChats();
+                    }
+                } else {
+                    statusBar.classList.add('disconnected');
+                    statusText.innerText = '● Disconnected - Please scan QR code';
+                    document.getElementById('main-container').style.display = 'none';
+                    document.getElementById('qr-container').style.display = 'block';
+                    
+                    if (data.qrCodeStr) {
+                        document.getElementById('qr-code').innerText = data.qrCodeStr;
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadChats() {
+            try {
+                const res = await fetch('/api/chats');
+                if (!res.ok) throw new Error('Failed to load chats');
+                allChats = await res.json();
+                renderChats(allChats);
+            } catch(e) {
+                console.error('Error loading chats:', e);
+            }
+        }
+
+        function renderChats(chats) {
+            const list = document.getElementById('chat-list');
+            if (chats.length === 0) {
+                list.innerHTML = '<div style="padding: 1rem; text-align: center; color: #999;">No chats found</div>';
+                return;
+            }
+            
+            list.innerHTML = '';
+            chats.forEach(chat => {
+                const item = document.createElement('div');
+                item.className = 'chat-item';
+                if (chat.id === currentChatId) {
+                    item.classList.add('selected');
+                }
+                item.onclick = () => selectChat(chat.id, chat.name);
+                item.innerHTML = `
+                    <div class="chat-name">${chat.name}</div>
+                    <div class="chat-id">${chat.id}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function filterChats() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = allChats.filter(c => 
+                c.name.toLowerCase().includes(query) || 
+                c.id.toLowerCase().includes(query)
+            );
+            renderChats(filtered);
+        }
+
+        async function selectChat(id, name) {
+            currentChatId = id;
+            currentChatName = name;
+            
+            document.getElementById('active-chat-title').innerText = name;
+            document.getElementById('message-input-group').style.display = 'block';
+            
+            const container = document.getElementById('messages-container');
+            container.innerHTML = '<div style="text-align: center; color: #999;">Loading history...</div>';
+            document.getElementById('messageInput').value = '';
+            
+            try {
+                const res = await fetch('/contact-history/' + encodeURIComponent(id));
+                if (!res.ok) throw new Error('Failed to load history');
+                const data = await res.json();
+                container.innerHTML = '';
+                
+                if(data.history && data.history.length > 0) {
+                    // Reverse to show oldest first
+                    [...data.history].reverse().forEach(item => {
+                        const msgDiv = document.createElement('div');
+                        msgDiv.className = 'message';
+                        
+                        // Simple heuristic: if from and to are different, it's received
+                        const isSent = false; // would need more info from the backend
+                        
+                        msgDiv.innerHTML = `
+                            <div class="message-sender">${item.from}</div>
+                            <div class="message-text">${item.body}</div>
+                        `;
+                        container.appendChild(msgDiv);
+                    });
+                } else {
+                    container.innerHTML = '<div style="text-align: center; color: #999;">No messages yet</div>';
+                }
+                container.scrollTop = container.scrollHeight;
+            } catch(e) {
+                container.innerHTML = '<div class="error">Could not load message history</div>';
+                console.error(e);
+            }
+        }
+
+        async function sendMsg() {
+            if(!currentChatId) return;
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if(!text) return;
+
+            try {
+                const res = await fetch('/api/send-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chatId: currentChatId, message: text })
+                });
+
+                if (!res.ok) throw new Error('Failed to send message');
+
+                // Optimistically add message
+                const container = document.getElementById('messages-container');
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message sent';
+                msgDiv.innerHTML = `
+                    <div class="message-sender">You</div>
+                    <div class="message-text">${text}</div>
+                `;
+                container.appendChild(msgDiv);
+                container.scrollTop = container.scrollHeight;
+                
+                input.value = '';
+            } catch(e) {
+                alert('Failed to send message: ' + e.message);
+            }
+        }
+
+        function handleKeyPress(e) {
+            if(e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMsg();
+            }
+        }
+
+        setInterval(fetchStatus, 3000);
+        fetchStatus();
+    </script>
+</body>
+</html>
