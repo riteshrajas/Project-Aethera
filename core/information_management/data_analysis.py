@@ -3,7 +3,11 @@ import re
 from collections import Counter
 from typing import Dict, Union, Iterable
 
-def analyze_text_frequency(text_input: Union[str, Iterable[str]]) -> Dict[str, int]:
+def analyze_text_frequency(
+    text_input: Union[str, Iterable[str]],
+    max_unique_words: int = 100000,
+    max_word_length: int = 100
+) -> Dict[str, int]:
     """
     Analyzes the frequency of words in a given text or iterable of text chunks.
 
@@ -12,8 +16,13 @@ def analyze_text_frequency(text_input: Union[str, Iterable[str]]) -> Dict[str, i
     to process data chunk-by-chunk or line-by-line, allowing analysis of datasets
     larger than available memory.
 
+    To prevent memory exhaustion (DoS), it limits the number of unique words
+    and the maximum length of individual words.
+
     Args:
         text_input (Union[str, Iterable[str]]): The input text string or an iterable yielding strings.
+        max_unique_words (int): The maximum number of unique words to store. Defaults to 100,000.
+        max_word_length (int): The maximum length of a single word. Defaults to 100.
 
     Returns:
         Dict[str, int]: A dictionary mapping words to their frequency counts.
@@ -23,18 +32,25 @@ def analyze_text_frequency(text_input: Union[str, Iterable[str]]) -> Dict[str, i
     # Compile regex for better performance if called many times
     word_pattern = re.compile(r'\b\w+\b')
 
-    def process_chunk(chunk: str):
-        # Generator expression avoids creating a list of matches for the chunk
-        return (match.group().lower() for match in word_pattern.finditer(chunk))
+    def update_counter(chunk: str):
+        """Processes a chunk of text and updates the counter with limits."""
+        for match in word_pattern.finditer(chunk):
+            word = match.group().lower()
+            if len(word) > max_word_length:
+                word = word[:max_word_length]
+
+            # Only add new words if we haven't reached the limit
+            if word in counter or len(counter) < max_unique_words:
+                counter[word] += 1
 
     if isinstance(text_input, str):
         if not text_input:
             return {}
-        counter.update(process_chunk(text_input))
+        update_counter(text_input)
     else:
         # Assume iterable of strings (e.g., file object)
         for chunk in text_input:
             if chunk:
-                counter.update(process_chunk(chunk))
+                update_counter(chunk)
 
     return dict(counter)
