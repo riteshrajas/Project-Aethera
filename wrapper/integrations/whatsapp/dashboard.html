@@ -298,10 +298,16 @@
                     item.classList.add('selected');
                 }
                 item.onclick = () => selectChat(chat.id, chat.name);
-                item.innerHTML = `
-                    <div class="chat-name">${chat.name}</div>
-                    <div class="chat-id">${chat.id}</div>
-                `;
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'chat-name';
+                nameDiv.textContent = chat.name;
+
+                const idDiv = document.createElement('div');
+                idDiv.className = 'chat-id';
+                idDiv.textContent = chat.id;
+
+                item.appendChild(nameDiv);
+                item.appendChild(idDiv);
                 list.appendChild(item);
             });
         }
@@ -341,10 +347,16 @@
                         // Simple heuristic: if from and to are different, it's received
                         const isSent = false; // would need more info from the backend
                         
-                        msgDiv.innerHTML = `
-                            <div class="message-sender">${item.from}</div>
-                            <div class="message-text">${item.body}</div>
-                        `;
+                        const senderDiv = document.createElement('div');
+                        senderDiv.className = 'message-sender';
+                        senderDiv.textContent = item.from;
+
+                        const textDiv = document.createElement('div');
+                        textDiv.className = 'message-text';
+                        textDiv.textContent = item.body;
+
+                        msgDiv.appendChild(senderDiv);
+                        msgDiv.appendChild(textDiv);
                         container.appendChild(msgDiv);
                     });
                 } else {
@@ -376,10 +388,16 @@
                 const container = document.getElementById('messages-container');
                 const msgDiv = document.createElement('div');
                 msgDiv.className = 'message sent';
-                msgDiv.innerHTML = `
-                    <div class="message-sender">You</div>
-                    <div class="message-text">${text}</div>
-                `;
+                const senderDiv = document.createElement('div');
+                senderDiv.className = 'message-sender';
+                senderDiv.textContent = 'You';
+
+                const textDiv = document.createElement('div');
+                textDiv.className = 'message-text';
+                textDiv.textContent = text;
+
+                msgDiv.appendChild(senderDiv);
+                msgDiv.appendChild(textDiv);
                 container.appendChild(msgDiv);
                 container.scrollTop = container.scrollHeight;
                 
