@@ -25,7 +25,7 @@ class AetheraWhatsAppClient:
         try:
             response = self.session.get(f"{self.base_url}/health")
             return response.status_code == 200 and response.json()["status"] == "connected"
-        except:
+        except Exception:
             return False
     
     def get_status(self) -> Dict:
