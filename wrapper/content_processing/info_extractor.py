@@ -16,6 +16,9 @@ class InfoExtractor:
         if not text or not keywords:
             return []
 
+        # Pre-lowercase keywords for performance
+        lowered_keywords = [kw.lower() for kw in keywords]
+
         # Split text into sentences (simple split by period)
         sentences = text.split('.')
         results = []
@@ -23,6 +26,9 @@ class InfoExtractor:
             sentence = sentence.strip()
             if not sentence:
                 continue
-            if any(keyword.lower() in sentence.lower() for keyword in keywords):
+
+            # Lowercase sentence once per iteration for performance
+            lowered_sentence = sentence.lower()
+            if any(keyword in lowered_sentence for keyword in lowered_keywords):
                 results.append(sentence)
         return results
