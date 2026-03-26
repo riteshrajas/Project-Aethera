@@ -5,7 +5,6 @@ Demonstrates how to use the WhatsApp integration to export contacts to JSON
 
 from wrapper.integrations.whatsapp.aethera_client import get_client
 import json
-from pathlib import Path
 
 
 def example_export_all_contacts():
